@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Initialize Firebase with your project config
+        const firebaseConfig = {
+            apiKey: "AIzaSyD0wCSi8-NJqe35jT2_ZFhQ05vrbImr-Eo",
+            authDomain: "nikitha-38246.firebaseapp.com",
+            databaseURL: "https://nikitha-38246-default-rtdb.firebaseio.com",
+            projectId: "nikitha-38246",
+            storageBucket: "nikitha-38246.appspot.com",
+            messagingSenderId: "101849405100",
+            appId: "1:101849405100:web:e571ee711db852cf137109",
+            measurementId: "G-QFPXYZ1X94"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('submitBtn').addEventListener('click', function () {
+                const name = document.getElementById('name').innerText.split(': ')[1];
+                const adminUid = document.getElementById('adminUid').innerText.split(': ')[1];
+                const email = document.getElementById('email').innerText.split(': ')[1];
+                const id = document.getElementById('id').innerText.split(': ')[1];
+                const seats = document.getElementById('seats').innerText.split(': ')[1];
+                const timeRange = document.getElementById('timeRange').innerText.split(': ')[1];
+                
+
+                const scannersRef = firebase.database().ref('scanners');
+                const userSeatsRef = firebase.database().ref('userSeats').child(adminUid);
+
+                scannersRef.once('value', function(snapshot) {
+                    const data = snapshot.val();
+
+                    if (data) {
+                        // Data exists, now check if the details match
+                        let dataExists = false;
+
+                        Object.values(data).forEach(item => {
+                            if (
+                                item.name === name &&
+                                item.adminUid === adminUid &&
+                                item.email === email &&
+                                item.id === id &&
+                                item.seats === seats &&
+                                item.timeRange === timeRange
+                            ) {
+                                dataExists = true;
+                            }
+                        });
+
+                        if (dataExists) {
+                            alert('Signout !!!');
+
+                            // Your existing code for marking seats false
+                            seats.split(',').forEach(seat => {
+                                userSeatsRef.child(seat.trim()).set(false)
+                                    .then(function() {
+                                        console.log('Seat ' + seat.trim() + ' marked as false successfully');
+                                    })
+                                    .catch(function(error) {
+                                        console.error('Error marking seat ' + seat.trim() + ' as false:', error);
+                                    });
+                            });
+
+                            // Your existing code for deleting data by specific ID
+                            const scannerToDelete = Object.keys(data).find(key => {
+                                const item = data[key];
+                                return (
+                                    item.name === name &&
+                                    item.adminUid === adminUid &&
+                                    item.email === email &&
+                                    item.id === id &&
+                                    item.seats === seats &&
+                                    item.timeRange === timeRange
+                                );
+                            });
+
+                            if (scannerToDelete) {
+                                scannersRef.child(scannerToDelete).remove()
+                                    .then(function() {
+                                        console.log('Data deleted successfully');
+                                    })
+                                    .catch(function(error) {
+                                        console.error('Error deleting data:', error);
+                                    });
+                            } else {
+                                console.error('Data not found for deletion');
+                            }
+                        } else {
+                            alert('Data is present but with different details');
+
+                            // Add the new data to the database
+                            scannersRef.push({
+                                name: name,
+                                adminUid: adminUid,
+                                email: email,
+                                id: id,
+                                seats: seats,
+                                timeRange: timeRange,
+                            });
+
+                            alert('New data added to Firebase!');
+                        }
+                    } else {
+                        alert('Data is not there and added');
+
+                        // Add the data to the database
+                        scannersRef.push({
+                            name: name,
+                            adminUid: adminUid,
+                            email: email,
+                            id: id,
+                            seats: seats,
+                            timeRange: timeRange,
+
+                        });
+
+                        alert('Login!!!');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="captureBtn">Capture</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+    
+    <!-- Display raw QR code data -->
+    <div id="qrCodeData"></div>
+
+    <!-- Display extracted information -->
+    <div id="name"></div>
+    <div id="adminUid"></div>
+    <div id="email"></div>
+    <div id="id"></div>
+    <div id="seats"></div>
+    <div id="timeRange"></div>
+
+    <!-- Submit button to store data in Firebase -->
+    <button id="submitBtn">Submit Data to Firebase</button>
+    
+    <!-- ... (previous HTML code) ... -->
+
+<!-- ... (previous HTML code) ... -->
+
+<script>
+    let qrCodeFound = false;
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            var video = document.getElementById('video');
+            video.srcObject = stream;
+
+            function captureAndDecode() {
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                var imageData = canvas.toDataURL('image/png');
+
+                fetch('/capture', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ imageData: imageData }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.qrCodeData === 'No QR code found') {
+                        // No QR code found, continue waiting
+                        console.log('No QR code found');
+                    } else {
+                        // QR code found, update UI and stop further captures
+                        qrCodeFound = true;
+
+                        document.getElementById('qrCodeData').innerText = 'QR Code Data: ' + data.qrCodeData;
+
+                        const qrCodeData = JSON.parse(data.qrCodeData);
+                        const adminUid = qrCodeData.adminUid || 'N/A';
+                        const name = qrCodeData.name || 'N/A';
+                        const email = qrCodeData.email || 'N/A';
+                        const id = qrCodeData.id || 'N/A';
+                        const seats = qrCodeData.seats || 'N/A';
+                        const timeRange=qrCodeData.timeRange || 'N/A';
+
+                        document.getElementById('name').innerText = 'Name: ' + name;
+                        document.getElementById('adminUid').innerText = 'Admin ID: ' + adminUid;
+                        document.getElementById('email').innerText = 'Email: ' + email;
+                        document.getElementById('id').innerText = 'ID: ' + id;
+                        document.getElementById('seats').innerText = 'Seat: ' + seats;
+                        document.getElementById('timeRange').innerText = 'timeRange: ' + timeRange;
+                        // Stop further captures
+                        clearInterval(captureInterval);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error parsing JSON response:', error);
+                });
+            }
+
+            var captureInterval = setInterval(captureAndDecode, 1000); // Capture and decode every 1 second
+
+            document.getElementById('captureBtn').addEventListener('click', function () {
+                if (!qrCodeFound) {
+                    // Manually trigger capture if no QR code found yet
+                    captureAndDecode();
+                }
+            });
+        })
+        .catch(function (error) {
+            console.error('Error accessing camera:', error);
+        });
+</script>
+
+<!-- ... (remaining HTML code) ... -->
+
+
+
+</body>
+</html>

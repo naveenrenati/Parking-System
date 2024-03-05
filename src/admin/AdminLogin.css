@@ -1,0 +1,59 @@
+/* AdminLogin.css */
+
+#admin-login-container {
+    width: 400px;
+    background: #1946d2;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  #admin-login-container h2 {
+    color: #030405;
+  }
+  
+/* AdminLogin.css */
+
+#admin-login-container label {
+    color: #1946d2;
+    font-size: 16px; /* Increased font size for labels */
+    margin-top: 10px;
+    display: block;
+    font-weight:500 ; 
+  }
+
+
+#admin-login-container input {
+    width: 100%;
+    padding: 12px; /* Increased padding for better visibility */
+    margin-top: 5px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    outline: none;
+    font-size: 14px; /* Increased font size for better visibility */
+  }
+  
+  
+  #admin-login-container button {
+    width: 100%;
+    background: #1946d2;
+    padding: 15px;
+    margin-top: 15px;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #admin-login-container button:hover {
+    background: #030405;
+  }
+  
+  #admin-login-container div {
+    color: red;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  

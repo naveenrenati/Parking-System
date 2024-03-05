@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #409efc; /* Set background color for the body */
+    color: #ffffff; /* Set text color for the body */
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  .box {
+    padding: 20px;
+    border: 2px solid #409efc; /* Set border color for the box */
+    border-radius: 8px;
+    text-align: center;
+    background-color: white; /* Set background color for the box */
+  }
+  
+  h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: black; /* Set text color for h2 */
+  }
+  
+  .link-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .link {
+    text-decoration: none;
+    color: black;
+    font-size: 1.5em;
+    transition: color 0.3s;
+  }
+  
+  .link:hover {
+    color: #409efc;
+  }
+  
