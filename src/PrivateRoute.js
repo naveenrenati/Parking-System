@@ -6,7 +6,7 @@ import { getAuth } from 'firebase/auth';
 
 const PrivateRoute = ({ element }) => {
   const auth = getAuth();
-  const isAuthenticated = auth.currentUser !== null;
+  const isAuthenticated = auth.currentUser !== true;
 
   return isAuthenticated ? (
     element

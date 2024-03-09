@@ -19,7 +19,6 @@ const App = () => {
   const auth = getAuth();
 
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Home-admin" element={<Home2 />} />
@@ -47,7 +46,7 @@ const App = () => {
         />
         {/* Add more routes for your application */}
       </Routes>
-    </Router>
+
   );
 };
 
